@@ -11,14 +11,44 @@ Laravel Lumen is a stunningly fast PHP micro-framework for building web applicat
 
 Documentation for the framework can be found on the [Lumen website](https://lumen.laravel.com/docs).
 
-## Contributing
+### Installing Lumen via composer
 
-Thank you for considering contributing to Lumen! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+`composer create-project --prefer-dist laravel/lumen <project-name>`
 
-## Security Vulnerabilities
+Installing additional composer package:
+```
+composer install --ignore-platform-reqs
+composer require flipbox/lumen-generator
+```
 
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
 
-## License
+### `bootstrap\app.php`
 
-The Lumen framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Add the following code:
+```
+$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+```
+- Uncomment the following:
+```
+$app->withFacades();
+$app->withEloquent();
+```
+
+## Basic artisan command:
+
+### Create controller (empty):
+`php artisan make:controller BookController`
+
+### Create controller (crud):
+`php artisan make:controller BookController --resource`
+
+
+### Create model:
+`php artisan make:model Book`
+
+### Create controller and model:
+`php artisan make:controller BookController --resource --model Model\Book`
+
+
+## Serving your Lumen API:
+`php artisan serve`
