@@ -36,6 +36,18 @@ $app->withFacades();
 $app->withEloquent();
 ```
 
+###### = Setup Database Connection in `.env`
+
+After setting up your database connection, type the following command in your terminal:
+
+```
+php artisan key:generate
+```
+
+This will generate a unique key for your app in `.env`
+
+
+
 ## Basic artisan command:
 
 ### Create controller (empty):
