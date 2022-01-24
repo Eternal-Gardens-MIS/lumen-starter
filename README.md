@@ -15,6 +15,8 @@ Documentation for the framework can be found on the [Lumen website](https://lume
 
 `composer create-project --prefer-dist laravel/lumen <project-name>`
 
+After installing lumen, you can `cd` to the project folder and install additiona packages.
+
 Installing additional composer package:
 ```
 composer install --ignore-platform-reqs
