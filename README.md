@@ -149,3 +149,5 @@ $this->app['auth']->viaRequest('api', function ($request) {
 $app->routeMiddleware()
 $app->register(App\Providers\AuthServiceProvider::class)
 ```
+
+###### NOTE: Your user table should have an api_key column in it!
