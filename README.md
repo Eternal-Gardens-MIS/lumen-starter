@@ -46,7 +46,8 @@ php artisan key:generate
 
 This will generate a unique key for your app in `.env`
 
-
+## Serving your Lumen API:
+`php artisan serve`
 
 ## Basic artisan command:
 
@@ -63,6 +64,88 @@ This will generate a unique key for your app in `.env`
 ### Create controller and model:
 `php artisan make:controller BookController --resource --model Model\Book`
 
+## Adding authentication to app
+Authentication in Lumen, while using the same underlying libraries as Laravel, is configured quite differently from the full Laravel framework. Since Lumen does not support session state, incoming requests that you wish to authenticate must be authenticated via a stateless mechanism such as API tokens.
 
-## Serving your Lumen API:
-`php artisan serve`
+- Create `UserController` and paste the following code:
+```bashrc
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class UserController extends Controller
+{
+    public function __construct()
+    {
+    }
+
+    public function authenticate(Request $request)
+    {
+        $this->validate($request, [
+            'empId' => 'required',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('empId', $request->empId)->first();
+
+        if (Hash::check($request->password, $user->password)) {
+            $apiKey = base64_encode(Str::random(40));
+            User::where('empId', $request->empId)->update(['api_key' => $apiKey]);
+
+            return ['status' => 'Success', 'api_key' => $apiKey];
+        }
+
+        return response()->json(['status' => 'fail'], 401);
+    }
+
+    public function register(Request $request)
+    {
+        $this->validate($request, [
+            'empId' => 'required|int',
+            'name' => 'required|string',
+            'position' => 'required|string',
+            'password' => 'required',
+        ]);
+
+        $created = User::create([
+            'empId' => $request->empId,
+            'name' => $request->name,
+            'position' => $request->position,
+            'password' => Hash::make($request->password),
+        ]);
+
+        if ($created) {
+            return response(['status' => 'Regisration Successful!']);
+        }
+
+        return response(['message' => 'Failed to register.']);
+    }
+}
+
+```
+
+- Modify `app\Providers\AuthServiceProvider.php`. Past the following code inside `boot()`.
+```bashrc
+$this->app['auth']->viaRequest('api', function ($request) {
+            if ($request->header('Authorization')) {
+                $key = explode(' ', $request->header('Authorization'));
+                $user = User::where('api_key', $key[1])->first();
+                if (!empty($user)) {
+                    $request->request->add(['userid' => $user->empId]);
+                }
+
+                return $user;
+            }
+        });
+```
+
+- Uncomment the following code in `bootstrap\app.php`
+```
+$app->routeMiddleware()
+$app->register(App\Providers\AuthServiceProvider::class)
+```
